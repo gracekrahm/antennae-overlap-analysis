@@ -128,8 +128,8 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
         print('lumco', lumco)
         mlumco = alphaco * lumco
         print('mlumco', mlumco)
-        errlumco = np.sqrt((np.sqrt(Nvox) * rms)**2 + (deltav * asarea *cdelt2**2)**2)
-        errmlumco = np.sqrt((0.1*mlumco)**2 + (alphaco * errlumco)**2)
+        errlumco = np.sqrt((np.sqrt(Nvox) * rms.value)**2 + (deltav.value * asarea.value *cdelt2.value**2)**2)
+        errmlumco = np.sqrt((0.1*mlumco.value)**2 + (alphaco.value * errlumco)**2)
         #calculate luminosity and mass
 
 
@@ -241,7 +241,7 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
         print
         print
 
-        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], Npix, Nvox, lumco.value, errlumco.value, COmax.value, mlumco.value, errmlumco.value, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value])
+        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value])
 
         return props
 
