@@ -7,7 +7,7 @@ import sys
 import h5py
 import numpy as np
 import matplotlib as mpl
-from matplotlib import pyplot as    
+from matplotlib import pyplot as plt   
 from matplotlib.colors import LogNorm
 from matplotlib.patches import Ellipse
 from astrodendro.scatter import Scatter
@@ -18,13 +18,18 @@ from astropy.io import fits
 from astropy.table import Table, Column
 #from scimes import SpectralCloudstering
 
+def min_peak(peak):
+    def result(structure, index=None, value=None):
+        return structure.vmax >= peak
+    return result
+
 with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=RuntimeWarning)
+        warnings.simplefilter("ignore")#, category=RuntimeWarning)
 pkmin = 3.5
 nsig = 5.5
 save_label = 'dendro_dendrogram_ab6high_5.5sig.fits'
 SAVE = True
-Dendrogram.compute(data, is_independent=is_independent)
+#Dendrogram.compute(data, is_independent=is_independent)
 def run_dendro(label='ab6high_5.5sig', cubefile='ab612co21.fits', flatfile='ab612co21mom0.fits',
                redo='n', nsigma=nsig, min_delta=2.5, min_bms=2.,
                position_dependent_noise=False, # will use rms map in dendro
@@ -75,11 +80,11 @@ def run_dendro(label='ab6high_5.5sig', cubefile='ab612co21.fits', flatfile='ab61
             d = Dendrogram.compute(hdu3.data, min_value=nsigma*sigma,
                                    min_delta=min_delta*sigma,
                                    min_npix=min_bms*ppb, verbose = 1,
-                                   is_independent=custom_independent)
+                                   is_independen=custom_independent)
         else:
             d = Dendrogram.compute(hdu3.data, min_value=nsigma*sigma,
                                    min_delta=min_delta*sigma,
-                                   min_npix=min_bms*ppb, verbose = 1, is_independent=min_peak(pkmin))
+                                   min_npix=min_bms*ppb, verbose = 1, is_independent=min_peak(pkmin*sigma))
         if SAVE:
           d.save_to(dendrofile)
 
@@ -308,7 +313,7 @@ def custom_independent(structure,index=None, value=None):
     momy=int(round(momy/mom0))
     peak_index, peak_value = structure.get_peak()
 #    return peak_value > 3.5
-    return(all_true(structure.values(subtree=True).max() > (threshold_sigma*rmsmap[momy,momx]), peak_value >pkmin))
+    return(all_true(structure.values(subtree=True).max() > (threshold_sigma*rmsmap[momy,momx]), peak_value >pkmin*sigma))
 
 
 def explore_dendro(label='ab6high_5.5sig', xaxis='radius', yaxis='v_rms'):
