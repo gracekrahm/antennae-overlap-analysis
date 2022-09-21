@@ -77,7 +77,9 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
     def get_clump_props(ncl):
         print('Computing Clump ', ncl, datetime.datetime.now())
         if stype=='dendro':
-            if clumps[ncl].is_leaf:
+            if clumps[ncl].parent == None:
+                cltype = 0
+            elif clumps[ncl].is_leaf:
                 cltype = 2
             elif clumps[ncl].is_branch:
                 cltype = 1
