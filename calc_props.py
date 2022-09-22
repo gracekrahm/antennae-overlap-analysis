@@ -277,7 +277,7 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
         print
         print
 
-        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value])
+        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], SGMC, Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value])
 
         return props
 
