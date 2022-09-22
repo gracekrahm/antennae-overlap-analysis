@@ -1,4 +1,4 @@
-ncl,cltype,maxpix x,maxpix y,maxpix v,SGMC,Npix,Nvox,lumco,errlumco,COmax,mlumco,errmlumco,meansigv,errsigv,a,b,R,errR,area,perim
+ncl,cltype,maxpix x,maxpix y,maxpix v,SGMC,Npix,Nvox,lumco,errlumco,COmax,mlumco,errmlumco,line ratio,alphaco,meansigv,errsigv,a,b,R,errR,area,perim
 1,2,1315,1342,39,2,2321,2.571e+04,7.814e+06,206.8,27.07,6.339e+06,6.339e+05,0.78,0.8,81.55,3.474,18.28,29.88,33.66,10.29,2.558e+04,1672
 2,2,1121,1362,31,2,7897,3.194e+04,1.024e+07,230.5,15.79,8.306e+06,8.306e+05,0.78,0.8,45.6,1.977,74.54,37.68,84.33,24.96,5.715e+04,2694
 3,2,1164,1430,26,2,3915,1.901e+04,5.02e+06,178,13.81,4.073e+06,4.073e+05,0.78,0.8,40.86,1.375,44.49,33.9,60.62,19.13,2.51e+04,1407
