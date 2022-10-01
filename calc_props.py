@@ -88,46 +88,23 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
             mask = clumps[ncl].get_mask()
             cldat = np.where(mask, TCO, np.nan)
             regionmask = np.where(mask, ncl, np.nan)
+            n_sgmc3 = np.count_nonzero(regionmask[0:2646,0:843]==ncl)
+            n_sgmc35 = np.count_nonzero(regionmask[0:2646,843:1017]==ncl)
+            n_sgmc2 = np.count_nonzero(regionmask[0:2646,1017:1557]==ncl)
+            n_sgmc1 = np.count_nonzero(regionmask[0:2646,1557:2272]==ncl)
+
             if np.all(np.isnan(cldat)):
                 blank = np.full(22, np.nan)
                 blank[0] = ncl
                 print('clump ',ncl, ' is all nans')
                 print
                 return blank
-            if np.any(regionmask[0:2646,0:843]==ncl):
-                print('reg SGMC 345')
-                SGMC = 345
-                line_ratio = line_ratios_list[0]
-            if np.any(regionmask[0:2646,843:1017]==ncl):
-                print('reg SGMC 345')
-                line_ratio = line_ratios_list[1]
-                SGMC = 345
-            if np.any(regionmask[0:2646,1017:1557]==ncl):
-                print('reg SGMC 2 probably')
-                line_ratio = line_ratios_list[1]
-                SGMC = 2
-            if np.any(regionmask[0:2646,1557:2272]==ncl):
-                print('reg SGMC 1')
-                line_ratio = line_ratios_list[2]
-                SGMC = 1
 
         else:
-            if np.any(clumps[0:2646,0:843]==ncl):
-                print('reg SGMC 345')
-                SGMC = 345
-                line_ratio = line_ratios_list[0]
-            if np.any(clumps[0:2646,843:1017]==ncl):
-                print('reg SGMC 345')
-                line_ratio = line_ratios_list[1]
-                SGMC = 345
-            if np.any(clumps[0:2646,1017:1557]==ncl):
-                print('reg SGMC 2 probably')
-                line_ratio = line_ratios_list[1]
-                SGMC = 2
-            if np.any(clumps[0:2646,1557:2272]==ncl):
-                print('reg SGMC 1')
-                line_ratio = line_ratios_list[2]
-                SGMC = 1
+            n_sgmc3 = np.count_nonzero(clumps[0:2646,0:843]==ncl)
+            n_sgmc35 = np.count_nonzero(clumps[0:2646,843:1017]==ncl)
+            n_sgmc2 = np.count_nonzero(clumps[0:2646,1017:1557]==ncl)
+            n_sgmc1 = np.count_nonzero(clumps[0:2646,1557:2272]==ncl)
             cldat = np.where(clumps==ncl, TCO, np.nan)
             cltype = 2
             if np.all(np.isnan(cldat)):
@@ -136,7 +113,29 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
                 print('clump is all nans')
                 print
                 return blank
+        if n_sgmc3>n_sgmc2 and n_sgmc3>n_sgmc35 and n_sgmc3>n_sgmc1:
+            print('reg SGMC 345')
+            SGMC = 345
+            line_ratio = line_ratios_list[0]
+        if n_sgmc35>n_sgmc3 and n_sgmc35>n_sgmc2 and n_sgmc35>n_sgmc1:
+            print('reg SGMC 345')
+            line_ratio = line_ratios_list[1]
+            SGMC = 345
+        if n_sgmc3<n_sgmc2 and n_sgmc2>n_sgmc35 and n_sgmc2>n_sgmc1:
+            print('reg SGMC 2 probably')
+            line_ratio = line_ratios_list[1]
+            SGMC = 2
+        if n_sgmc1>n_sgmc2 and n_sgmc1>n_sgmc35 and n_sgmc3<n_sgmc1:
+            print('reg SGMC 1')
+            line_ratio = line_ratios_list[2]
+            SGMC = 1
+        try:
+            SGMC_def = SGMC
+        except:
+            SGMC_def = 0
+            line_ratio = line_ratio = line_ratios_list[1]
 
+            
         # Mask the map to include just the clump of interest (these are 3D still)
 
         
