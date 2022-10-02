@@ -24,17 +24,45 @@ import csv
 import warnings
 warnings.simplefilter('ignore')
 
+pc = 3.09 * 10**18 # cm
+mH2 = 2. * 1.67*10**(-24) # mass of H2 in g
+Msol = 2.*10**33 # mass of sun in g
+G = 6.67 * 10**(-8) # in cgs
+
+def extPressure_k(Mass, SigmaV, Radius):
+    Pi = 0.5
+    Radius = Radius * 3.09 * 10**18
+    SigmaV = SigmaV * 10**5
+    Mass = Mass * 2 * 10**33
+    p_constant = (3 * 0.5)/(4*np.pi*(1.38*10**(-16)))
+    return p_constant*(Mass * SigmaV**2) / (Radius**3)
+
+
+def extPressure_k_err(Mass, SigmaV, Radius, errmlumco, errsigv, errR):
+    Radius =  Radius * 3.09 * 10**18
+    SigmaV = SigmaV * 10**5
+    Mass = Mass * 2 * 10**33
+    p_constant = 3 * 0.5/(4*np.pi*(1.38*10**(-16)))
+    dpdr = -p_constant*Mass*(SigmaV**2)/(Radius**2)
+    dpdm = (p_constant*SigmaV**2)/Radius
+    dpdv = 2*p_constant*Mass*SigmaV/Radius
+    error = np.sqrt((dpdr*errR)**2 + (dpdm*errmlumco)**2 + (dpdv*errsigv)**2)
+    return error
+
+def calc_alphavir(MASS, meansigv, R):
+  return 5. * (meansigv * 10**5)**2 * (R * pc) / (G * (MASS * Msol))
+def calc_alphavir_err(MASS, meansigv, R, errmlumco, errsigv, errR):
+    erralphavir = np.sqrt(((10. * (meansigv * 10**5) * (R * pc) / (G * (mass * Msol))) * errsigv * 10**5)**2 +
+                          ((5. * (meansigv * 10**5)**2 / (G * (mass * Msol))) * errR * pc)**2 +
+                          ((5. * (meansigv * 10**5)**2 * (R * pc) / (G * (mass * Msol)**2)) * errmass * Msol)**2)
+    return erralphavir
+
 
 def TB(cube, bmin, bmaj, freq):
     return 1.222 * 10**3 * (cube * 1000) / (freq**2 * bmin * bmaj)
 
 def gaussian(dat, A0, sigx, x0):
     return A0 * np.exp(-(dat - x0)**2/(2*sigx**2))
-
-pc = 3.09 * 10**18 # cm
-mH2 = 2. * 1.67*10**(-24) # mass of H2 in g
-Msol = 2.*10**33 # mass of sun in g
-G = 6.67 * 10**(-8) # in cgs
 
 
 def fitEllipse(cont):
@@ -275,8 +303,12 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
 
         print
         print
+        pressure = extPressure_k(mlumco.value, meansigv, R)
+        alphavir = calc_alphavir(mlumco.value, meansigv, R)
+        erralphavir = calc_alphavir_err(mlumco.value, meansigv, R, errmlumco, errsigv, errR.value)
+        pressure_err = extPressure_k_err(mlumco.value, meansigv, R, errmlumco, errsigv, errR.value)
 
-        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], SGMC, Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value])
+        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], SGMC, Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value, pressure, pressure_err,alphavir,erralphavir])
 
         return props
 
