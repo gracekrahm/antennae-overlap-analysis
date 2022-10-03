@@ -390,7 +390,7 @@ if __name__=='__main__':
         for ncl in range(1,3):
             props = get_clump_props(ncl)
             props_array.append(props)
-            print('here', datetime.datetime.now())
+            print('Done', datetime.datetime.now())
 
 
     else:
