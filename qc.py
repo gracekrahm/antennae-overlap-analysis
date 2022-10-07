@@ -62,13 +62,15 @@ except ImportError:
 import numpy as np
 
 # Global settings.
-DEFAULT_NPXMIN = 350
+DEFAULT_NPXMIN = 100
 DEFAULT_LOGLEVEL = "INFO"
 VERBOSE_LOGLEVEL = "DEBUG"
 SILENT_LOGLEVEL = "CRITICAL"
-nsig = 5
-pkmin = 8
-#label = ".clumps."+nsig"nsig."pkmin"pkmin.fits"
+nsig = 4
+pkmin = 10
+min_valley = 2#dtleaf/sig
+cutoff = nsig #tcutoff/sig
+#label = ".clumps."+"nsig."pkmin"pkmin.fits"
 label=".clumps.5nsig.8pkmin.fits"
 # Relative map of a pixel's neighbourhood.
 # pragma pylint: disable=bad-whitespace
@@ -179,13 +181,13 @@ def parse_args(argv=None):
         type=float,
         help="Minimal depth of a valley separating adjacent clumps.  Clumps "
              "separated by a valley that is shallower will be merged "
-             "together.  Must be > 0.  (default: nsig*sig_noise)"
+             "together.  Must be > 0.  (default: min_valley*sig_noise)"
         )
     parser.add_argument(
         "--Tcutoff",
         type=float,
         help="Minimal data value to consider.  Pixels with lower values won't "
-             "be processed.  Must be > 0.  (default: nsig*sig_noise)"
+             "be processed.  Must be > 0.  (default: cutoff*sig_noise)"
         )
     parser.add_argument(
         "--Npxmin",
@@ -313,7 +315,7 @@ def set_defaults(options, idata):
         if new_options.ifits.endswith(".fits"):
             new_options.ofits = new_options.ifits[:-5] + label
         elif new_options.ifits.endswith(".fit"):
-            new_options.ofits = new_options.ifits[:-4] + ".clumps.fit"
+            new_options.ofits = new_options.ifits[:-4] + label
         else:
             new_options.ofits = new_options.ifits + label
 
@@ -326,7 +328,7 @@ def set_defaults(options, idata):
         else:
             new_options.otext = new_options.ifits + ".clumps.txt"
 
-    # dTleaf/Tcutoff -- nsig*sig_noise
+    # dTleaf/Tcutoff -- cutoff*sig_noise
     if (new_options.dTleaf is None) or (new_options.Tcutoff is None) or (new_options.Tpkmin is None):
         LOGGER.debug("Options dTleaf and/or Tcutoff was not set. "
                      "Estimating from the input data.")
@@ -354,15 +356,15 @@ def set_defaults(options, idata):
 
         # Set dTleaf.
         if new_options.dTleaf is None:
-            LOGGER.debug("Setting dTleaf to %f (= nsig*std_noise = nsig*%f)",
-                         nsig*std_noise, std_noise)
-            new_options.dTleaf = nsig*std_noise
+            LOGGER.debug("Setting dTleaf to %f (= min_valley*std_noise = min_valley*%f)",
+                         min_valley*std_noise, std_noise)
+            new_options.dTleaf = min_valley*std_noise
 
         # Set Tcutoff.
         if new_options.Tcutoff is None:
-            LOGGER.debug("Setting Tcutoff to %f (= nsig*std_noise = nsig*%f)",
-                         nsig*std_noise, std_noise)
-            new_options.Tcutoff = nsig*std_noise
+            LOGGER.debug("Setting Tcutoff to %f (= cutoff*std_noise = cutoff*%f)",
+                         cutoff*std_noise, std_noise)
+            new_options.Tcutoff = cutoff*std_noise
 
         # Set Tpkmin.
         if new_options.Tpkmin is None:
