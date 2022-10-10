@@ -29,6 +29,12 @@ mH2 = 2. * 1.67*10**(-24) # mass of H2 in g
 Msol = 2.*10**33 # mass of sun in g
 G = 6.67 * 10**(-8) # in cgs
 
+def density_calc(mlumco,errmlumco,R,errR):
+    rsp = (np.pi*R**2)**2
+    dddr = -3*mlumco*np.pi/rsp
+    dddm = (np.pi*R**2)/rsp
+    return np.sqrt((dddr*errR.value)**2 + (dddm*errmlumco)**2)
+
 def extPressure_k(Mass, SigmaV, Radius):
     Pi = 0.5
     Radius *= 3.09 * 10**18
@@ -39,17 +45,18 @@ def extPressure_k(Mass, SigmaV, Radius):
 
 def extPressure_k_err(Mass, SigmaV, Radius, errmlumco, errsigv, errR):
     Radius *= 3.09 * 10**18
-    SigmaV *= 10**5
-    Mass *= 2 * 10**33
-    errR *= 3.09 * 10**18
-    errsigv *= 10**5
-    errmlumco *= 2 * 10**33
+    SigmaV = SigmaV * 10**5
+    Mass = Mass * 2 * 10**33
+    errR = errR * 3.09 * 10**18
+    errsigv = errsigv * 10**5
     p_constant = 3 * 0.5/(4*np.pi*(1.38*10**(-16)))
-    dpdr = -p_constant*Mass*(SigmaV**2)/(Radius**2)
-    dpdm = (p_constant*SigmaV**2)/Radius
-    dpdv = 2*p_constant*Mass*SigmaV/Radius
+    errmlumco = errmlumco * 2 * 10**33
+    dpdr = -3*p_constant*Mass*(SigmaV**2)/(Radius**4)
+    dpdm = (p_constant*(SigmaV**2))/(Radius**3)
+    dpdv = 2*p_constant*Mass*SigmaV/(Radius**3)
     error = np.sqrt((dpdr*errR)**2 + (dpdm*errmlumco)**2 + (dpdv*errsigv)**2)
     return error
+
 
 def calc_alphavir(mass, meansigv, R):
   return 5. * (meansigv * 10**5)**2 * (R * pc) / (G * (mass * Msol))
@@ -310,7 +317,7 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
         erralphavir = calc_alphavir_err(mlumco.value, meansigv, R, errmlumco, errsigv, errR.value)
         pressure_err = extPressure_k_err(mlumco.value, meansigv, R, errmlumco, errsigv, errR.value)
         density = mlumco.value/(np.pi*R**2)
-        densityerr = np.sqrt((-2*mlumco.value*errR.value/(np.pi*R**2))**2 + (errmlumco/(np.pi*R**2))**2)
+        densityerr = densityerr = density_calc(mlumco.value,errmlumco,R,errR)
         props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], SGMC, Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value, density,densityerr,pressure, pressure_err,alphavir,erralphavir])
 
         return props
