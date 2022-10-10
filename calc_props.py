@@ -367,6 +367,12 @@ if __name__=='__main__':
     else:
         clmax = len(clumps)
 
+    if line=='12CO32' and clumps.shape==(100,2646,2646):
+        print(COdat.shape)
+        clumps = clumps[:-4,:,:]
+        #print('maskfile shape',clumps.shape)
+
+        
     bmaj=hdr['bmaj'] * 3600*u.arcsec # arcsec
     bmin=hdr['bmin'] * 3600*u.arcsec # arcsec
     freq=hdr['CRVAL3'] / 10**9 # GHz
