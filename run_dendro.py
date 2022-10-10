@@ -25,13 +25,13 @@ def min_peak(peak):
 
 with warnings.catch_warnings():
         warnings.simplefilter("ignore")#, category=RuntimeWarning)
-pkmin = 3.5
-nsig = 5.5
-save_label = 'dendro_dendrogram_ab6high_5.5sig.fits'
+pkmin = 9.
+nsig = 7.
+save_label = 'dendro_dendrogram_ab6high_7sig.fits'
 SAVE = True
 #Dendrogram.compute(data, is_independent=is_independent)
-def run_dendro(label='ab6high_5.5sig', cubefile='ab612co21.fits', flatfile='ab612co21mom0.fits',
-               redo='n', nsigma=nsig, min_delta=2.5, min_bms=2.,
+def run_dendro(label='ab6high_7sig', cubefile='ab612co21.fits', flatfile='ab612co21mom0.fits',
+               redo='n', nsigma=nsig, min_delta=2.5, min_bms=1.,
                position_dependent_noise=False, # will use rms map in dendro
                criteria=['volume'], # for SCIMES
                doplots=True,
