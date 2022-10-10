@@ -123,6 +123,8 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
             else:
                 cltype = 0
             mask = clumps[ncl].get_mask()
+            if line=='12CO32' and mask.shape==(100,2646,2646):
+                    mask = mask[:-4,:,:]
             cldat = np.where(mask, TCO, np.nan)
             regionmask = np.where(mask, ncl, np.nan)
             n_sgmc3 = np.count_nonzero(regionmask[0:2646,0:843]==ncl)
@@ -364,14 +366,11 @@ if __name__=='__main__':
     rms = stats.mad_std(COdat[~np.isnan(COdat)])
     if stype == 'clump':
         clmax = np.nanmax(clumps)
+        if line=='12CO32' and clumps.shape==(100,2646,2646):
+            clumps = clumps[:-4,:,:]
+        #print('maskfile shape',clumps.shape)
     else:
         clmax = len(clumps)
-
-    if line=='12CO32' and clumps.shape==(100,2646,2646):
-        print(COdat.shape)
-        clumps = clumps[:-4,:,:]
-        #print('maskfile shape',clumps.shape)
-
         
     bmaj=hdr['bmaj'] * 3600*u.arcsec # arcsec
     bmin=hdr['bmin'] * 3600*u.arcsec # arcsec
