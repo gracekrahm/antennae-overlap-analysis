@@ -123,7 +123,12 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
             else:
                 cltype = 0
             mask = clumps[ncl].get_mask()
+            mask = clumps[ncl].get_mask()
+            if line=='12CO32' and mask.shape==(100,2646,2646):
+                mask = mask[:-4,:,:]
+            print('mask shape', mask.shape)
             cldat = np.where(mask, TCO, np.nan)
+            regionmask = np.where(mask, ncl, np.nan)
             regionmask = np.where(mask, ncl, np.nan)
             n_sgmc3 = np.count_nonzero(regionmask[0:2646,0:843]==ncl)
             n_sgmc35 = np.count_nonzero(regionmask[0:2646,843:1017]==ncl)
@@ -138,6 +143,8 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
                 return blank
 
         else:
+            if line=='12CO32' and clumps.shape==(100,2646,2646):
+                clumps = clumps[:-4,:,:]
             n_sgmc3 = np.count_nonzero(clumps[0:2646,0:843]==ncl)
             n_sgmc35 = np.count_nonzero(clumps[0:2646,843:1017]==ncl)
             n_sgmc2 = np.count_nonzero(clumps[0:2646,1017:1557]==ncl)
