@@ -410,7 +410,7 @@ if __name__=='__main__':
         print
         pool = mp.Pool(processes=procs)
         if stype=='clump':
-            props_array = np.array(pool.map(get_clump_props, np.arange(1,clmax)))
+            props_array = np.array(pool.map(get_clump_props, np.arange(1,clmax+1)))
         else:
             props_array = np.array(pool.map(get_clump_props, np.arange(clmax)))
         pool.close()
