@@ -133,7 +133,7 @@ def define(clumps12, COtemp12, COtemp13, freq13, mass_factor):
             final_mass = column_density_13(t12, t13, freq13, ncl,mass_factor)
         props = np.array([ncl, final_mass]) 
         return props
-    return define
+    return run_mp
 
 if __name__ == "__main__":
         TEST = True
