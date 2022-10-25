@@ -12,9 +12,8 @@ import h5py
 from astrodendro import Dendrogram
 import sys
 from scipy.optimize import fsolve
-import warnings
 import pandas as pd
-
+import multiprocessing as mp
 import warnings
 warnings.simplefilter('ignore')
 
@@ -22,7 +21,6 @@ warnings.simplefilter('ignore')
 SAVE=True
 equiv_radius=False
 TITLES = True
-check_12_optically_thin = False
 use_filling_factor = True
 f=1
 
@@ -34,21 +32,7 @@ Hz = 1/u.s
 Kkms = u.K/u.km/u.s
 grav_units = (u.m**3)/(u.kg*u.s**2)
 
-allsum_list = ['mass from summing all']
-momsum_list = ['mass from summing mom0']
 
-mom0_array = []
-#lists
-if TITLES:
-        ncl_list = ["ncl"]
-        number_density_sum_list = ["13CO number density sum"]
-        number_density_mean_list = ["13CO number density mean"]
-        number_density_max_list = ["13CO number density max"]
-else:
-        ncl_list = []
-        number_density_sum_list = []
-        number_density_mean_list = []
-        number_density_max_list = []
 
 
 def column_density_13(t12, t13, freq13, ncl, mass_factor):
@@ -63,15 +47,9 @@ def column_density_13(t12, t13, freq13, ncl, mass_factor):
         Aul = 6.03*10**(-7)*Hz #http://www.ifa.hawaii.edu/users/jpw/classes/star_formation/reading/molecules.pdf
         c = 2.998*10**8*ms
 
-        #if check_12_optically_thin:
-                #if ncl in [127, 137, 155, 157, 162]:
-                        #tex = t12*u.K
-                #else:
-                        #tex = tul_12/np.log((tul_12.value/t12)+1)
-        #else:
-                #tex = tul_12/np.log((tul_12.value/t12)+1)
+
         #assume 12CO(2-1) is optically thick and use firecracker eqn 2 to find tex
-#       tex = tul_12/np.log((tul_12.value/t12)+1)
+        #tex = tul_12/np.log((tul_12.value/t12)+1)
         tex = tul_12/np.log((11.255762*f+t12)/(t12+0.195762*f))
         print("tex max, tex mean", np.nanmax(tex), np.nanmean(tex))
 
@@ -79,33 +57,15 @@ def column_density_13(t12, t13, freq13, ncl, mass_factor):
         tau_13 = -np.log(1-((t13/f)/tul_13.value)*(((1/(np.exp(tul_13/tex)-1))-(1/(np.exp(tul_13/tcmb)-1)))**(-1)))
         print("tau 13 max, mean:", np.nanmax(tau_13), np.nanmean(tau_13))
 
-        print('-np.log(1-((t13/f)/tul_13.value)', np.nanmean(-np.log(1-((t13/f)/tul_13.value))))
-        print('(((1/(np.exp(tul_13/tex)-1))-(1/(np.exp(tul_13/tcmb)-1)))**(-1)))', np.nanmean((((1/(np.exp(tul_13/tex)-1))-(1/(np.exp(tul_13/tcmb)-1)))**(-1))))
-        print('((1/(np.exp(tul_13/tex)-1))', np.nanmean(((1/(np.exp(tul_13/tex)-1)))))
-        print('(1/(np.exp(tul_13/tcmb)-1)))**(-1)))', np.nanmean((1/(np.exp(tul_13/tcmb)-1))**(-1)))
+
         #calculate column density for 13CO
         Q = (tex.value/B.value)+(1/3)
         print("q:", np.nanmax(Q))
-#       vel_disp = get_props(propfile12, propfile13, ncl)[0]
-        vel_disp = 5*u.km/u.s
+
         vel_channel = 4999.99999998*u.m/u.s # channel size of velocity 5000 m/s
-#no np sqrt 2pi
         N_13 = ((8*np.pi*nu_naught**2)/(Aul*gu*c**2)) * (Q/(1-np.exp(-tul_13/tex))) * tau_13*vel_channel*np.sqrt(1) *freq13/c
-#       N_13 = ((8*np.pi*nu_naught**2)/(Aul*gu*c**2)) * (Q/(1-np.exp(-tul_13/tex))) * tau_13*vel_channel*np.sqrt(2*np.pi) *freq13/c  #vel       #best so far
-#       print('v/c', freq13/c)
-#       N_13 = ((8*np.pi*nu_naught**2)/(Aul*gu*c**2)) * (Q/(1-np.exp(-tul_13/tex))) * tau_13*np.sqrt(2*np.pi) * 3844959.96893  #freq
-
-        mom0n = np.nansum(N_13, axis=0)
-        mom0n=mom0n.value
-        mom0n=mom0n/(u.m**2)
-        mom0n=mom0n.to(1/u.cm**2)
-        mom0_array.append(mom0n.value)
-        mom0n=mom0n.value
-
         N_13 = (N_13.value)/((u.m)**2)
         N_13 = N_13.to(1/(u.cm**2))
-        #dens = N_13*(9.24394022969462*10**(-14))
-        #dens = dens *70*4*10000/2000000
         dens = N_13 * mass_factor
         print('mean, max dens', np.nanmean(dens), np.nanmax(dens))
         t13area = np.where(t13!=np.nan, 1., np.nan)
@@ -141,7 +101,7 @@ if __name__ == "__main__":
         stype = 'clump'
         cubefile12 = 'ab6highpbcor.fits'
         cubefile13 = 'ab6lowpbcor.fits'
-        clumpfile12 = 'ab612co21.clumps.4.25nsig.1.75leaf.5.5pkmin.300npixmin_newrms.fits'
+        maskfile12 = 'ab612co21.clumps.4.25nsig.1.75leaf.5.5pkmin.300npixmin_newrms.fits'
         nsig=2 #typically use 5sigma in maps but maybe use sigma used for qc
         dpc = 22*10**6 #distance in pc
         pc = 3.09*10**18 #cm/pc
@@ -154,17 +114,14 @@ if __name__ == "__main__":
             procs = 4
 
         #HEADER DATA
-        clumps12 = fits.getdata(clumpfile12)
-        clumps13 = 1
-        #ncl_total12 = np.nanmax(clumps12)
-        #ncl_total13 = np.nanmax(clumps13)
-
+        if stype == 'clump':
+            clumps12 = fits.getdata(maskfile12)
+        else:
+            Dendrogram.load_from(maskfile12)
         COdata12 = fits.getdata(cubefile12)
         COdata13 = fits.getdata(cubefile13)
         COdata_header12 = fits.getheader(cubefile12)
         COdata_header13 = fits.getheader(cubefile13)
-
-
         arcsec_per_pixel = COdata_header12['CDELT2']*3600
         print('arcsec per pix: ', arcsec_per_pixel)
         pixelarea = ((arcsec_per_pixel/206265.) * dpc * pc)**2 # cm^2
