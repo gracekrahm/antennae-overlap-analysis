@@ -182,7 +182,7 @@ if __name__ == "__main__":
                 print('t13 max:', np.nanmax(t13), 't12 max:',np.nanmax(t12))
                 mom013 = np.nansum(t13, axis=0)
                 mom012 = np.nansum(t12,axis=0)
-                if (26*mom013 <0.25*mom012):
+                if (26*np.nansum(mom013) <0.25*np.nansum(mom012)):
                         allsum_list.append(np.nan)
                         momsum_list.append(np.nan)
                 else:
