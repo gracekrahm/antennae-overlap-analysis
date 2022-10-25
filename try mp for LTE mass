@@ -118,11 +118,12 @@ def column_density_13(t12, t13, freq13, ncl, mass_factor):
 
 
 
-def define(t12, t13, freq13, ncl,mass_factor):
+def define(clumps12, COtemp12, COtemp13, freq13, mass_factor):
+    global run_mp
     def run_mp(ncl):
         ncl_list.append(ncl)
         t12 = np.where(ncl==clumps12, COtemp12, np.nan)
-        t13 = np.where(ncl==clumps12, COtemp12, np.nan)
+        t13 = np.where(ncl==clumps12, COtemp13, np.nan)
         print('t13 max:', np.nanmax(t13), 't12 max:',np.nanmax(t12))
         mom013 = np.nansum(t13, axis=0)
         mom012 = np.nansum(t12,axis=0)
@@ -131,16 +132,16 @@ def define(t12, t13, freq13, ncl,mass_factor):
         else:
             final_mass = column_density_13(t12, t13, freq13, ncl,mass_factor)
         props = np.array([ncl, final_mass]) 
-    return props
-return define
+        return props
+    return define
 
 if __name__ == "__main__":
         TEST = True
         SAVE = False
         stype = 'clump'
-        cubefile12 = 'ab612co21.fits'
-        cubefile13 = 'ab6low.fits'
-        clumpfile12 = 'ab612co21.clumps.5nsig.8pkmin.fits'
+        cubefile12 = 'ab6highpbcor.fits'
+        cubefile13 = 'ab6lowpbcor.fits'
+        clumpfile12 = 'ab612co21.clumps.4.25nsig.1.75leaf.5.5pkmin.300npixmin_newrms.fits'
         nsig=2 #typically use 5sigma in maps but maybe use sigma used for qc
         dpc = 22*10**6 #distance in pc
         pc = 3.09*10**18 #cm/pc
@@ -189,32 +190,32 @@ if __name__ == "__main__":
 
 
         if stype == 'clump':
-            clmax = np.nanmax(clumps)  
+            clmax = np.nanmax(clumps12)  
         else:
-            clmax = len(clumps)
-
+            clmax = len(clumps12)
+        run_mp = define(clumps12,COtemp12,COtemp13, freq13,mass_factor)
         if TEST:
             props_array = []
             for ncl in np.array([92]):#,200,276, 374, 452, 486, 498, 507, 578]):
-                props = get_clump_props(ncl)
+                props = run_mp(ncl)
                 props_array.append(props)
                 print('done')
             
             
         else:
-            print 'Starting mp clump props for ', clmax, ' structures.', datetime.datetime.now()
+            print('Starting mp clump props for ', clmax, ' structures.')
             print
             pool = mp.Pool(processes=procs)
             if stype=='clump':
-                props_array = np.array(pool.map(get_clump_props, np.arange(1,clmax+1)))
+                props_array = np.array(pool.map(run_mp, np.arange(1,clmax+1)))
             else:
-                props_array = np.array(pool.map(get_clump_props, np.arange(clmax+1)))
+                props_array = np.array(pool.map(run_mp, np.arange(clmax+1)))
             pool.close()
             pool.join()
 
             print
             print('Done parallel computing')
-            print props_array.shape
+            print(props_array.shape)
 
 
         if SAVE:
