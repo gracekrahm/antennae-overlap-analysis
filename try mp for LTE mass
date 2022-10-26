@@ -117,7 +117,7 @@ if __name__ == "__main__":
         if stype == 'clump':
             clumps12 = fits.getdata(maskfile12)
         else:
-            Dendrogram.load_from(maskfile12)
+            clumps12 = Dendrogram.load_from(maskfile12)
         COdata12 = fits.getdata(cubefile12)
         COdata13 = fits.getdata(cubefile13)
         COdata_header12 = fits.getheader(cubefile12)
