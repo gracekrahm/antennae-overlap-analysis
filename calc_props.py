@@ -186,6 +186,12 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
         COmax = np.nanmax(clmom8)
         print('comax', COmax)
         argmax = np.unravel_index(np.nanargmax(cldat), (cldat.shape))
+        
+        #convert pixel values to ra and dec
+        w = astropy.wcs.WCS(hdr, naxis=2, fix=True, translate_units='h')
+        coords = astropy.wcs.utils.pixel_to_skycoord(argmax[1],argmax[0],w)
+        ra = coords.ra.value/15
+        dec = coords.dec.value
 
         mask_to_ones = np.where(clmom8 > nsig*rms, 1., np.nan)
         cube_to_ones = np.where(cldat > nsig*rms, 1., np.nan)
@@ -320,7 +326,7 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
         pressure_err = extPressure_k_err(mlumco.value, meansigv, R, errmlumco, errsigv, errR.value)
         density = mlumco.value/(np.pi*R**2)
         densityerr = densityerr = density_calc(mlumco.value,errmlumco,R,errR)
-        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], SGMC, Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value, density,densityerr,pressure, pressure_err,alphavir,erralphavir])
+        props = np.array([ncl, cltype, argmax[2], argmax[1], argmax[0], ra,dec,SGMC, Npix, Nvox, lumco.value, errlumco, COmax.value, mlumco.value, errmlumco, meansigv, errsigv, a.value, b.value, R, errR.value, area.value, perim.value, density,densityerr,pressure, pressure_err,alphavir,erralphavir])
 
         return props
 
