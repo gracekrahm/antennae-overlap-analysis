@@ -338,7 +338,6 @@ def define_get_clump_props(Galaxy, stype, clumps, TCO, nsig, rms, D_Gal, arcsec_
                 #i = format(i,'.4f')
                 i="{0:.4g}".format(i).rstrip('0').rstrip('.')
             proplist.append(i)
-        print('proplist',proplist)
         final_props = np.array(proplist)
         print('density,density err', density,densityerr)
         print('alphavir', alphavir)
