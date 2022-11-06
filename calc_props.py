@@ -367,6 +367,17 @@ if __name__=='__main__':
     solMass = u.def_unit('solMass')
     XCO = (0.5 * 10**20)*(u.cm**2)*u.s/(u.K*u.km) # cm^2 / (K km/s) - standard Galactic value from Bolattio+2013
     alphaco = 0.8 * u.solMass * u.s / (u.K * u.km * u.pc**2)
+    line='12CO21'       #'12CO21', '13CO21', or '12CO32'
+
+    line_ratios_12CO21 = [1.06, 1.04, 1.1]    #12co21 to 12co10
+    line_ratios_13CO21 = [16.98113208, 25, 26.36363636]  #13co21 to 12co10
+    line_ratios_12CO32 = [0.87, 0.78, 0.67] #12co32 to 12co10
+    if line=='12CO21':
+        line_ratios_list = line_ratios_12CO21
+    elif line=='13CO21':
+        line_ratios_list = line_ratios_13CO21
+    elif line=='12CO32':
+        line_ratios_list = line_ratios_12CO32
     as2 = 1 * u.arcsec**2
     asarea = (as2*D_Gal**2).to(u.pc**2,equivalencies=u.dimensionless_angles())
     if TEST:
