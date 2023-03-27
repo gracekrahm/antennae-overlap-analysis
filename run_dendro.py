@@ -25,18 +25,31 @@ def min_peak(peak):
 
 with warnings.catch_warnings():
         warnings.simplefilter("ignore")#, category=RuntimeWarning)
-pkmin = 9.
-nsig = 7.
-save_label = 'dendro_dendrogram_ab6high_7sig.fits'
+    
+line = 'hco'
+ext = '/lustre/cv/students/gkrahm/ant_dense/files/' + line
+
+
+pkmin = 7.
+nsig = 2.
+save_label = 'dendro_dendrogram_'+line+str(nsig)+'nsig_'+str(pkmin)+'pkmin.fits'
+label = line+str(nsig)+'nsig_'+str(pkmin)+'pkmin'
+cubefile = ext + '/' + line + '_linechannels.cube.fits'
+flatfile = ext + '/' + line + '_linechannels.mom0.fits'
 SAVE = True
+
+
+
+
 #Dendrogram.compute(data, is_independent=is_independent)
-def run_dendro(label='ab6high_7sig', cubefile='ab612co21.fits', flatfile='ab612co21mom0.fits',
+def run_dendro(label=label, cubefile=cubefile, flatfile=flatfile,
                redo='n', nsigma=nsig, min_delta=2.5, min_bms=1.,
                position_dependent_noise=False, # will use rms map in dendro
                criteria=['volume'], # for SCIMES
                doplots=True,
                dendro_in=None, # use this instead of re-loading
                **kwargs):
+
 
     global cubedata,rmsmap,threshold_sigma
 
@@ -61,7 +74,7 @@ def run_dendro(label='ab6high_7sig', cubefile='ab612co21.fits', flatfile='ab612c
 
     # Make the dendrogram if not present or redo=y
     if position_dependent_noise:
-        dendrofile='dendro_dendrogram_rmsmap_ab6high_5.5sig.fits'
+        dendrofile=save_label
     else:
         dendrofile=save_label
 
@@ -90,8 +103,8 @@ def run_dendro(label='ab6high_7sig', cubefile='ab612co21.fits', flatfile='ab612c
 
     if doplots:
         # checks/creates directory to place plots
-        if os.path.isdir('ab6high_5.5sig_dendro_plots') == 0:
-            os.makedirs('ab6high_5.5sig_dendro_plots')
+        if os.path.isdir(label+'_dendro_plots') == 0:
+            os.makedirs(label+'_dendro_plots')
 
         # Plot the tree
         fig = plt.figure(figsize=(14, 8))
@@ -109,7 +122,7 @@ def run_dendro(label='ab6high_7sig', cubefile='ab612co21.fits', flatfile='ab612c
         for st in d.leaves:
             p.plot_tree(ax, structure=[st], color='green')
         #p.plot_tree(ax, color='black')
-        plt.savefig('ab6high_5.5sig_dendro_plots/'+label+'_dendrogram.pdf', bbox_inches='tight')
+        plt.savefig(label+'_dendro_plots/'+label+'_dendrogram.pdf', bbox_inches='tight')
 
     #%&%&%&%&%&%&%&%&%&%&%&%&%&%
     #   Generate the catalog
@@ -243,7 +256,7 @@ def run_dendro(label='ab6high_7sig', cubefile='ab612co21.fits', flatfile='ab612c
         f.close()
 
         fig.colorbar(im, ax=ax)
-        plt.savefig('ab6high_5.5sig_dendro_plots/'+label+'_trunks_map.pdf', bbox_inches='tight')
+        plt.savefig(label+'_dendro_plots/'+label+'_trunks_map.pdf', bbox_inches='tight')
         plt.close()
 
         # Make a branch list
@@ -294,7 +307,7 @@ def run_dendro(label='ab6high_7sig', cubefile='ab612co21.fits', flatfile='ab612c
                 writer.writerow([val])
 
         fig.colorbar(im, ax=ax)
-        plt.savefig('ab6high_5.5sig_dendro_plots/'+label+'_leaves_map.pdf', bbox_inches='tight')
+        plt.savefig(label+'_dendro_plots/'+label+'_leaves_map.pdf', bbox_inches='tight')
         plt.close()
 def custom_independent(structure,index=None, value=None):
     global cubedata,rmsmap,threshold_sigma
@@ -316,7 +329,7 @@ def custom_independent(structure,index=None, value=None):
     return(all_true(structure.values(subtree=True).max() > (threshold_sigma*rmsmap[momy,momx]), peak_value >pkmin*sigma))
 
 
-def explore_dendro(label='ab6high_5.5sig', xaxis='radius', yaxis='v_rms'):
+def explore_dendro(label=label, xaxis='radius', yaxis='v_rms'):
     #d = Dendrogram.load_from(label+'_dendrogram.fits')
     cat = Table.read(label+'_full_catalog.txt', format='ascii.ecsv')
     dv = d.viewer()
