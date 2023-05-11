@@ -1,4 +1,4 @@
-[ncl,cltype,maxpix x,maxpix y,maxpix v,SGMC,Npix,Nvox,lumco.value, errlumco,COmax.value,mlumco,errmlumco,line_ratio,alphaco,meansigv,errsigv,a,b,R,errR,area,perim,density,densityerr,pressure,pressure_err,alphavir,erralphavir
+ncl,cltype,maxpix x,maxpix y,maxpix v,SGMC,Npix,Nvox,lumco.value, errlumco,COmax.value,mlumco,errmlumco,line_ratio,alphaco,meansigv,errsigv,a,b,R,errR,area,perim,density,densityerr,pressure,pressure_err,alphavir,erralphavir
 1,2,276,259,57,345,568,3603,3.12e+05,29.8,14.559563,2.037e+06,2.037e+05,6,0.8,19.46,0.7216,36.34,7.912,24.79,10.73,4118,726.1,1055,119.1,2.97e+07,3.874e+07,5.339,2.404
 2,2,305,272,49,345,525,3206,2.762e+05,28.75,14.120331,1.803e+06,1.803e+05,6,0.8,15.57,0.2525,9.854,10.48,11.29,1.174,3252,333,4502,467,1.781e+08,5.864e+07,1.759,0.2601
 3,2,292,267,48,345,309,2658,2.38e+05,27.22,13.853288,1.553e+06,1.553e+05,6,0.8,20.6,0.2711,7.515,16.29,13.35,10.34,2,249.8,2776,557.4,1.627e+08,3.783e+08,4.224,3.301
